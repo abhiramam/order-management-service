@@ -1,7 +1,7 @@
 package org.scaler.ordermanagementservice.services;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.JsonMappingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.transaction.Transactional;
 import lombok.extern.slf4j.Slf4j;
 import org.scaler.ordermanagementservice.exceptions.OrderNotFoundException;
@@ -11,6 +11,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Optional;
 
 @Service
 @Slf4j
@@ -20,30 +21,25 @@ public class OrderService {
     OrderRepository orderRepository;
 
     public boolean orderExsists(Long orderId){
-        return orderRepository.existsAllByOrderId(orderId);
+        return orderRepository.existsById(orderId);
     }
 
     public List<OrderInfoVo> getAllOrders(){
         return orderRepository.findAll();
     }
 
-    public OrderInfoVo getOrderById(Long orderId){
-        if (orderExsists(orderId)) {
-            return orderRepository.findAllByorderId(orderId);
-        } else {
-            throw new OrderNotFoundException(orderId);
-        }
-
+    public Optional<OrderInfoVo> getOrderById(Long orderId){
+            return orderRepository.findById(orderId);
     }
 
     public void saveOrder(OrderInfoVo orderInfoVo) throws JsonProcessingException {
-            orderRepository.save(orderInfoVo);
+        orderRepository.save(orderInfoVo);
     }
 
     @Transactional
     public void deleteByOrderId(Long orderId){
         if (orderExsists(orderId)){
-            orderRepository.deleteByOrderId(orderId);
+            orderRepository.deleteById(orderId);
         }
     }
 

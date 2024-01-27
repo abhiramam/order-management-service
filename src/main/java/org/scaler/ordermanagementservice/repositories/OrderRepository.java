@@ -5,11 +5,6 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
 @Repository
-public interface OrderRepository extends JpaRepository<OrderInfoVo,String> {
+public interface OrderRepository extends JpaRepository<OrderInfoVo,Long> {
 
-    OrderInfoVo findAllByorderId(Long orderId);
-
-    void deleteByOrderId(Long orderId);
-
-    boolean existsAllByOrderId(Long orderId);
 }
