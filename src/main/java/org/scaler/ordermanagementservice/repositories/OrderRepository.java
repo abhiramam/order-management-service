@@ -7,9 +7,9 @@ import org.springframework.stereotype.Repository;
 @Repository
 public interface OrderRepository extends JpaRepository<OrderInfoVo,String> {
 
-    OrderInfoVo findAllById(Long orderId);
+    OrderInfoVo findAllByorderId(Long orderId);
 
-    void deleteById(Long orderId);
+    void deleteByorderId(Long orderId);
 
     boolean existsByOrderId(Long orderId);
 }

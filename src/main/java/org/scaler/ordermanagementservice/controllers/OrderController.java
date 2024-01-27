@@ -2,10 +2,10 @@ package org.scaler.ordermanagementservice.controllers;
 
 
 import com.fasterxml.jackson.core.JsonProcessingException;
-import io.swagger.v3.oas.annotations.parameters.RequestBody;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang.ObjectUtils;
 import org.scaler.ordermanagementservice.exceptions.OrderNotFoundException;
+import org.scaler.ordermanagementservice.modals.OrderInfoVo;
 import org.scaler.ordermanagementservice.services.OrderService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -46,17 +46,17 @@ public class OrderController {
     }
 
     @PostMapping(path = "/order")
-    public ResponseEntity<Object> saveOrder(@RequestBody String orderInfoVo) throws JsonProcessingException {
-        try{
+    public ResponseEntity<Object> saveOrder(@RequestBody OrderInfoVo orderInfoVo) {
+        try {
             log.info("Received request to add a new order");
             orderService.saveOrder(orderInfoVo);
             return ResponseEntity.status(HttpStatus.CREATED).body("Order created successfully");
-        } catch (JsonProcessingException e){
-            log.error("Failed to add order");
+        } catch (JsonProcessingException e) {
+            log.error("Failed to add order due to JSON processing exception", e);
             return ResponseEntity.status(HttpStatus.UNPROCESSABLE_ENTITY).body("Failed to create order due to JSON processing exception");
-        } catch (Exception e){
-            log.error("Failed to add order please try again after sometime");
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Failed to add order please try again after sometime");
+        } catch (Exception e) {
+            log.error("Failed to add order, please try again after sometime", e);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Failed to add order, please try again after sometime");
         }
     }
 
