@@ -2,11 +2,9 @@ package org.scaler.ordermanagementservice.services;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonMappingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.transaction.Transactional;
 import lombok.extern.slf4j.Slf4j;
 import org.scaler.ordermanagementservice.exceptions.OrderNotFoundException;
-import org.scaler.ordermanagementservice.exceptions.OrderStatusNotValidException;
 import org.scaler.ordermanagementservice.modals.OrderInfoVo;
 import org.scaler.ordermanagementservice.repositories.OrderRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -38,19 +36,14 @@ public class OrderService {
 
     }
 
-    public String saveOrder(OrderInfoVo orderInfoVo) throws JsonProcessingException, JsonMappingException {
+    public void saveOrder(OrderInfoVo orderInfoVo) throws JsonProcessingException {
             orderRepository.save(orderInfoVo);
-            return "Successfully added order";
     }
 
     @Transactional
-    public String deleteByOrderId(Long orderId){
+    public void deleteByOrderId(Long orderId){
         if (orderExsists(orderId)){
             orderRepository.deleteByOrderId(orderId);
-            return "Successfully deleted order";
-        }else {
-            log.error("Order Not found");
-            return "";
         }
     }
 
