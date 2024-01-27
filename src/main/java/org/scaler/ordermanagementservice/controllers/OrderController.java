@@ -5,6 +5,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang.ObjectUtils;
 import org.scaler.ordermanagementservice.exceptions.OrderNotFoundException;
+import org.scaler.ordermanagementservice.exceptions.OrderStatusNotValidException;
 import org.scaler.ordermanagementservice.modals.OrderInfoVo;
 import org.scaler.ordermanagementservice.services.OrderService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -35,6 +36,9 @@ public class OrderController {
     public ResponseEntity<Object> getOrderById(@PathVariable Long orderId){
         try {
             log.info("Received request to get details of order : {}",orderId);
+            if (!orderService.orderExsists(orderId)) {
+                throw new OrderNotFoundException(orderId);
+            }
             return ResponseEntity.status(HttpStatus.OK).body(orderService.getOrderById(orderId));
         } catch (OrderNotFoundException e){
             log.error("Order not found with order id : {}",orderId);
@@ -49,6 +53,9 @@ public class OrderController {
     public ResponseEntity<Object> saveOrder(@RequestBody OrderInfoVo orderInfoVo) {
         try {
             log.info("Received request to add a new order");
+            if (!orderService.isValidOrderStatus(orderInfoVo.getOrderStatus())){
+                throw new OrderStatusNotValidException();
+            }
             orderService.saveOrder(orderInfoVo);
             return ResponseEntity.status(HttpStatus.CREATED).body("Order created successfully");
         } catch (JsonProcessingException e) {
@@ -60,17 +67,20 @@ public class OrderController {
         }
     }
 
-    @DeleteMapping(path = "/order/{orderId}")
+    @DeleteMapping(path = "/{orderId}")
     public ResponseEntity<Object> deleteOrderById(@PathVariable Long orderId){
         try {
             log.info("Received request to delete order : {}", orderId);
-            orderService.deleteOrderById(orderId);
+            if (!orderService.orderExsists(orderId)) {
+                throw new OrderNotFoundException(orderId);
+            }
+            orderService.deleteByOrderId(orderId);
             return ResponseEntity.status(HttpStatus.OK).body("Successfully deleted order");
         } catch (OrderNotFoundException e){
-            log.error("Order not found with orderId : {}",orderId);
+            log.error("Order not found with orderId : {}",orderId,e);
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Order not found");
         } catch (Exception e){
-            log.error("Failed to delete order. Please try again after some time");
+            log.error("Failed to delete order. Please try again after some time",e);
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(null);
         }
     }

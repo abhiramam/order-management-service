@@ -9,7 +9,7 @@ public interface OrderRepository extends JpaRepository<OrderInfoVo,String> {
 
     OrderInfoVo findAllByorderId(Long orderId);
 
-    void deleteByorderId(Long orderId);
+    void deleteByOrderId(Long orderId);
 
-    boolean existsByOrderId(Long orderId);
+    boolean existsAllByOrderId(Long orderId);
 }
