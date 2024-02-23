@@ -2,6 +2,7 @@ package org.scaler.ordermanagementservice.controllers;
 
 
 import com.fasterxml.jackson.core.JsonProcessingException;
+import io.github.resilience4j.ratelimiter.annotation.RateLimiter;
 import lombok.extern.slf4j.Slf4j;
 import org.scaler.ordermanagementservice.exceptions.OrderNotFoundException;
 import org.scaler.ordermanagementservice.exceptions.OrderStatusNotValidException;
@@ -49,6 +50,7 @@ public class OrderController {
     }
 
     @PostMapping(path = "/order")
+    @RateLimiter(name = "orderRateLimiter")
     public ResponseEntity<Object> saveOrder(@RequestBody OrderInfoVo orderInfoVo) {
         try {
             log.info("Received request to add a new order");

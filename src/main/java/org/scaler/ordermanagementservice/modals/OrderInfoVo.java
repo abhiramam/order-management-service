@@ -18,7 +18,7 @@ public class OrderInfoVo {
 
     private String customerName;
 
-    private Long customerId;
+    private Long bookId;
 
     private String orderStatus;
 

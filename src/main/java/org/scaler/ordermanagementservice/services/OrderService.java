@@ -5,6 +5,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.transaction.Transactional;
 import lombok.extern.slf4j.Slf4j;
 import org.scaler.ordermanagementservice.exceptions.OrderNotFoundException;
+import org.scaler.ordermanagementservice.feign.FeignInterface;
 import org.scaler.ordermanagementservice.modals.OrderInfoVo;
 import org.scaler.ordermanagementservice.repositories.OrderRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -20,6 +21,9 @@ public class OrderService {
     @Autowired
     OrderRepository orderRepository;
 
+    @Autowired
+    FeignInterface feignInterface;
+
     public boolean orderExsists(Long orderId){
         return orderRepository.existsById(orderId);
     }
@@ -34,6 +38,9 @@ public class OrderService {
 
     public void saveOrder(OrderInfoVo orderInfoVo) throws JsonProcessingException {
         orderRepository.save(orderInfoVo);
+        Long bookId = orderInfoVo.getBookId();
+        feignInterface.getBookById(bookId);
+
     }
 
     @Transactional
