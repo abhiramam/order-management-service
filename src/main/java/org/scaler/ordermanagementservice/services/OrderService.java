@@ -33,7 +33,7 @@ public class OrderService {
     public List<OrderResponseDto> getAllOrders() {
         return orderRepository.findAll().stream()
                 .map(this::convertToDto)
-                .collect(Collectors.toList());
+                .toList();
     }
 
     public Optional<OrderResponseDto> getOrderById(Long orderId) {

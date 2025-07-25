@@ -6,18 +6,24 @@ This document provides instructions for the Gemini agent to effectively assist w
 
 This is a Java-based order management service built with Spring Boot. It provides APIs for creating, retrieving, and managing orders.
 
-## Key Technologies
+## Key Technologies & Frameworks
 
-*   **Language:** Java
+*   **Language:** Java 17
 *   **Framework:** Spring Boot
 *   **Build Tool:** Maven
-*   **Database:** (Specify database if known, e.g., H2, PostgreSQL)
-*   **API Documentation:** Swagger
+*   **Database:** MySQL (runtime), H2 (testing)
+*   **API Documentation:** SpringDoc (Swagger UI)
+*   **Service Discovery:** Spring Cloud Netflix Eureka Client
+*   **Declarative REST Client:** Spring Cloud OpenFeign
+*   **Circuit Breaker:** Resilience4j
+*   **Logging:** SLF4J (use this for all logging purposes)
+*   **Data Access:** Spring Data JPA
+*   **Code Generation:** Lombok (use annotations like `@Data`, `@Getter`, `@Setter`, etc. to reduce boilerplate code)
 
 ## Development Workflow
 
 *   **Code Style:** Follow standard Java conventions.
-*   **Testing:** Unit tests are located in `src/test/java`. Use `mvn test` to run them.
+*   **Testing:** Unit tests are located in `src/test/java`. Use `mvn test` to run them. The project uses JUnit 5 and Mockito for testing.
 *   **Dependencies:** Manage dependencies in the `pom.xml` file.
 
 ## How to Run the Application
