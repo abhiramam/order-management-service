@@ -1,7 +1,6 @@
 package org.scaler.ordermanagementservice.services;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
-import jakarta.transaction.Transactional;
 import lombok.extern.slf4j.Slf4j;
 import org.scaler.ordermanagementservice.dtos.OrderRequestDto;
 import org.scaler.ordermanagementservice.dtos.OrderResponseDto;
@@ -26,7 +25,7 @@ public class OrderService {
     @Autowired
     FeignInterface feignInterface;
 
-    public boolean orderExists(Long orderId) {
+    public boolean orderExists(String orderId) {
         return orderRepository.existsById(orderId);
     }
 
@@ -36,12 +35,11 @@ public class OrderService {
                 .toList();
     }
 
-    public Optional<OrderResponseDto> getOrderById(Long orderId) {
+    public Optional<OrderResponseDto> getOrderById(String orderId) {
         return orderRepository.findById(orderId)
                 .map(this::convertToDto);
     }
 
-    @Transactional
     public OrderResponseDto saveOrder(OrderRequestDto orderRequestDto) throws JsonProcessingException {
         OrderInfoVo orderInfoVo = convertToEntity(orderRequestDto);
         OrderInfoVo savedOrder = orderRepository.save(orderInfoVo);
@@ -57,8 +55,7 @@ public class OrderService {
         return convertToDto(savedOrder);
     }
 
-    @Transactional
-    public void deleteByOrderId(Long orderId) {
+    public void deleteByOrderId(String orderId) {
         if (orderExists(orderId)) {
             orderRepository.deleteById(orderId);
         } else {

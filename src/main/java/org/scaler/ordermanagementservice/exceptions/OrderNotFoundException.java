@@ -2,7 +2,7 @@ package org.scaler.ordermanagementservice.exceptions;
 
 public class OrderNotFoundException extends RuntimeException {
 
-    public OrderNotFoundException(Long orderId){
+    public OrderNotFoundException(String orderId){
         super("Order not found with ID: " + orderId);
     }
 

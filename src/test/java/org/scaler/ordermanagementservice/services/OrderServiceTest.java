@@ -43,13 +43,13 @@ public class OrderServiceTest {
     @BeforeEach
     void setUp() {
         orderInfoVo1 = new OrderInfoVo();
-        orderInfoVo1.setOrderId(1L);
+        orderInfoVo1.setOrderId("1");
         orderInfoVo1.setCustomerName("Customer 1");
         orderInfoVo1.setBookId(101L);
         orderInfoVo1.setOrderStatus("NEW");
 
         orderInfoVo2 = new OrderInfoVo();
-        orderInfoVo2.setOrderId(2L);
+        orderInfoVo2.setOrderId("2");
         orderInfoVo2.setCustomerName("Customer 2");
         orderInfoVo2.setBookId(102L);
         orderInfoVo2.setOrderStatus("PROCESSING");
@@ -60,7 +60,7 @@ public class OrderServiceTest {
         orderRequestDto.setOrderStatus("NEW");
 
         orderResponseDto = new OrderResponseDto();
-        orderResponseDto.setOrderId(1L);
+        orderResponseDto.setOrderId("1");
         orderResponseDto.setCustomerName(orderRequestDto.getCustomerName());
         orderResponseDto.setBookId(orderRequestDto.getBookId());
         orderResponseDto.setOrderStatus(orderRequestDto.getOrderStatus());
@@ -81,29 +81,29 @@ public class OrderServiceTest {
 
     @Test
     void getOrderById_whenOrderExists_shouldReturnOrderResponseDto() {
-        when(orderRepository.findById(1L)).thenReturn(Optional.of(orderInfoVo1));
+        when(orderRepository.findById("1")).thenReturn(Optional.of(orderInfoVo1));
 
-        Optional<OrderResponseDto> result = orderService.getOrderById(1L);
+        Optional<OrderResponseDto> result = orderService.getOrderById("1");
 
         assertTrue(result.isPresent());
         assertEquals(orderInfoVo1.getCustomerName(), result.get().getCustomerName());
-        verify(orderRepository, times(1)).findById(1L);
+        verify(orderRepository, times(1)).findById("1");
     }
 
     @Test
     void getOrderById_whenOrderDoesNotExist_shouldReturnEmptyOptional() {
-        when(orderRepository.findById(3L)).thenReturn(Optional.empty());
+        when(orderRepository.findById("3")).thenReturn(Optional.empty());
 
-        Optional<OrderResponseDto> result = orderService.getOrderById(3L);
+        Optional<OrderResponseDto> result = orderService.getOrderById("3");
 
         assertFalse(result.isPresent());
-        verify(orderRepository, times(1)).findById(3L);
+        verify(orderRepository, times(1)).findById("3");
     }
 
     @Test
     void saveOrder_shouldSaveAndReturnOrderResponseDto_feignCallSucceeds() throws Exception {
         OrderInfoVo savedOrderVo = new OrderInfoVo();
-        savedOrderVo.setOrderId(1L); // Simulate ID generation
+        savedOrderVo.setOrderId("1"); // Simulate ID generation
         savedOrderVo.setCustomerName(orderRequestDto.getCustomerName());
         savedOrderVo.setBookId(orderRequestDto.getBookId());
         savedOrderVo.setOrderStatus(orderRequestDto.getOrderStatus());
@@ -123,7 +123,7 @@ public class OrderServiceTest {
     @Test
     void saveOrder_shouldSaveAndReturnOrderResponseDto_feignCallFails() throws Exception {
         OrderInfoVo savedOrderVo = new OrderInfoVo();
-        savedOrderVo.setOrderId(1L);
+        savedOrderVo.setOrderId("1");
         savedOrderVo.setCustomerName(orderRequestDto.getCustomerName());
         savedOrderVo.setBookId(orderRequestDto.getBookId());
         savedOrderVo.setOrderStatus(orderRequestDto.getOrderStatus());
@@ -144,40 +144,40 @@ public class OrderServiceTest {
 
     @Test
     void deleteByOrderId_whenOrderExists_shouldDeleteOrder() {
-        when(orderRepository.existsById(1L)).thenReturn(true);
-        doNothing().when(orderRepository).deleteById(1L);
+        when(orderRepository.existsById("1")).thenReturn(true);
+        doNothing().when(orderRepository).deleteById("1");
 
-        assertDoesNotThrow(() -> orderService.deleteByOrderId(1L));
+        assertDoesNotThrow(() -> orderService.deleteByOrderId("1"));
 
-        verify(orderRepository, times(1)).existsById(1L);
-        verify(orderRepository, times(1)).deleteById(1L);
+        verify(orderRepository, times(1)).existsById("1");
+        verify(orderRepository, times(1)).deleteById("1");
     }
 
     @Test
     void deleteByOrderId_whenOrderDoesNotExist_shouldThrowOrderNotFoundException() {
-        when(orderRepository.existsById(3L)).thenReturn(false);
+        when(orderRepository.existsById("3")).thenReturn(false);
 
         Exception exception = assertThrows(OrderNotFoundException.class, () -> {
-            orderService.deleteByOrderId(3L);
+            orderService.deleteByOrderId("3");
         });
 
         assertEquals("Order not found with ID: 3", exception.getMessage());
-        verify(orderRepository, times(1)).existsById(3L);
-        verify(orderRepository, never()).deleteById(anyLong());
+        verify(orderRepository, times(1)).existsById("3");
+        verify(orderRepository, never()).deleteById(anyString());
     }
 
     @Test
     void orderExists_shouldReturnTrue_whenOrderExists() {
-        when(orderRepository.existsById(1L)).thenReturn(true);
-        assertTrue(orderService.orderExists(1L));
-        verify(orderRepository, times(1)).existsById(1L);
+        when(orderRepository.existsById("1")).thenReturn(true);
+        assertTrue(orderService.orderExists("1"));
+        verify(orderRepository, times(1)).existsById("1");
     }
 
     @Test
     void orderExists_shouldReturnFalse_whenOrderDoesNotExist() {
-        when(orderRepository.existsById(1L)).thenReturn(false);
-        assertFalse(orderService.orderExists(1L));
-        verify(orderRepository, times(1)).existsById(1L);
+        when(orderRepository.existsById("1")).thenReturn(false);
+        assertFalse(orderService.orderExists("1"));
+        verify(orderRepository, times(1)).existsById("1");
     }
 
     @Test

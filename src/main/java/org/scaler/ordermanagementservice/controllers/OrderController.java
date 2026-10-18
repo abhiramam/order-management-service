@@ -42,7 +42,7 @@ public class OrderController {
     }
 
     @GetMapping(path = "/{orderId}")
-    public ResponseEntity<OrderResponseDto> getOrderById(@PathVariable Long orderId) {
+    public ResponseEntity<OrderResponseDto> getOrderById(@PathVariable String orderId) {
         try {
             log.info("Received request to get details of order : {}", orderId);
             return orderService.getOrderById(orderId)
@@ -93,7 +93,7 @@ public class OrderController {
     }
 
     @DeleteMapping(path = "/{orderId}")
-    public ResponseEntity<Object> deleteOrderById(@PathVariable Long orderId) {
+    public ResponseEntity<Object> deleteOrderById(@PathVariable String orderId) {
         try {
             log.info("Received request to delete order : {}", orderId);
             // The check for existence is now implicitly handled by orderService.deleteByOrderId or it throws OrderNotFoundException
