@@ -1,29 +1,23 @@
 package org.scaler.ordermanagementservice.services;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import lombok.extern.slf4j.Slf4j;
 import org.scaler.ordermanagementservice.dtos.OrderRequestDto;
 import org.scaler.ordermanagementservice.dtos.OrderResponseDto;
 import org.scaler.ordermanagementservice.exceptions.OrderNotFoundException;
-import org.scaler.ordermanagementservice.feign.FeignInterface;
 import org.scaler.ordermanagementservice.modals.OrderInfoVo;
 import org.scaler.ordermanagementservice.repositories.OrderRepository;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 @Service
-@Slf4j
 public class OrderService {
 
-    @Autowired
-    OrderRepository orderRepository;
+    private final OrderRepository orderRepository;
 
-    @Autowired
-    FeignInterface feignInterface;
+    public OrderService(OrderRepository orderRepository) {
+        this.orderRepository = orderRepository;
+    }
 
     public boolean orderExists(String orderId) {
         return orderRepository.existsById(orderId);
@@ -40,18 +34,9 @@ public class OrderService {
                 .map(this::convertToDto);
     }
 
-    public OrderResponseDto saveOrder(OrderRequestDto orderRequestDto) throws JsonProcessingException {
+    public OrderResponseDto saveOrder(OrderRequestDto orderRequestDto) {
         OrderInfoVo orderInfoVo = convertToEntity(orderRequestDto);
         OrderInfoVo savedOrder = orderRepository.save(orderInfoVo);
-        Long bookId = savedOrder.getBookId();
-        // We'll address the Feign call's error handling and implications in a later step
-        try {
-            feignInterface.getBookById(bookId);
-            log.info("Successfully fetched book details for bookId: {}", bookId);
-        } catch (Exception e) {
-            log.warn("Failed to fetch book details for bookId: {}. Order saved without book verification.", bookId, e);
-            // Depending on requirements, might throw an exception or handle differently
-        }
         return convertToDto(savedOrder);
     }
 
