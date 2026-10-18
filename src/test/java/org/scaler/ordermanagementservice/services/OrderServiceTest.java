@@ -9,10 +9,8 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.scaler.ordermanagementservice.dtos.OrderRequestDto;
 import org.scaler.ordermanagementservice.dtos.OrderResponseDto;
 import org.scaler.ordermanagementservice.exceptions.OrderNotFoundException;
-import org.scaler.ordermanagementservice.feign.FeignInterface;
 import org.scaler.ordermanagementservice.modals.OrderInfoVo;
 import org.scaler.ordermanagementservice.repositories.OrderRepository;
-import org.springframework.http.ResponseEntity;
 
 import java.util.Arrays;
 import java.util.List;
@@ -20,7 +18,6 @@ import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
@@ -28,9 +25,6 @@ public class OrderServiceTest {
 
     @Mock
     private OrderRepository orderRepository;
-
-    @Mock
-    private FeignInterface feignInterface;
 
     @InjectMocks
     private OrderService orderService;
@@ -101,7 +95,7 @@ public class OrderServiceTest {
     }
 
     @Test
-    void saveOrder_shouldSaveAndReturnOrderResponseDto_feignCallSucceeds() throws Exception {
+    void saveOrder_shouldSaveAndReturnOrderResponseDto() {
         OrderInfoVo savedOrderVo = new OrderInfoVo();
         savedOrderVo.setOrderId("1"); // Simulate ID generation
         savedOrderVo.setCustomerName(orderRequestDto.getCustomerName());
@@ -109,38 +103,13 @@ public class OrderServiceTest {
         savedOrderVo.setOrderStatus(orderRequestDto.getOrderStatus());
 
         when(orderRepository.save(any(OrderInfoVo.class))).thenReturn(savedOrderVo);
-        when(feignInterface.getBookById(anyLong())).thenReturn(ResponseEntity.ok().build()); // Simulate successful Feign call
-
         OrderResponseDto result = orderService.saveOrder(orderRequestDto);
 
         assertNotNull(result);
         assertEquals(savedOrderVo.getOrderId(), result.getOrderId());
         assertEquals(orderRequestDto.getCustomerName(), result.getCustomerName());
         verify(orderRepository, times(1)).save(any(OrderInfoVo.class));
-        verify(feignInterface, times(1)).getBookById(orderRequestDto.getBookId());
     }
-
-    @Test
-    void saveOrder_shouldSaveAndReturnOrderResponseDto_feignCallFails() throws Exception {
-        OrderInfoVo savedOrderVo = new OrderInfoVo();
-        savedOrderVo.setOrderId("1");
-        savedOrderVo.setCustomerName(orderRequestDto.getCustomerName());
-        savedOrderVo.setBookId(orderRequestDto.getBookId());
-        savedOrderVo.setOrderStatus(orderRequestDto.getOrderStatus());
-
-        when(orderRepository.save(any(OrderInfoVo.class))).thenReturn(savedOrderVo);
-        when(feignInterface.getBookById(anyLong())).thenThrow(new RuntimeException("Feign client error")); // Simulate Feign call failure
-
-        OrderResponseDto result = orderService.saveOrder(orderRequestDto);
-
-        assertNotNull(result);
-        assertEquals(savedOrderVo.getOrderId(), result.getOrderId());
-        assertEquals(orderRequestDto.getCustomerName(), result.getCustomerName());
-        verify(orderRepository, times(1)).save(any(OrderInfoVo.class));
-        verify(feignInterface, times(1)).getBookById(orderRequestDto.getBookId());
-        // We expect a warning log in this case, which is harder to verify directly without log capture setup
-    }
-
 
     @Test
     void deleteByOrderId_whenOrderExists_shouldDeleteOrder() {
