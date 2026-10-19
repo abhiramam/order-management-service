@@ -34,7 +34,10 @@ public class UserService {
                 .distinct()
                 .toList();
 
-        User user = new User(username, passwordEncoder.encode(request.password()), roles);
+        User user = new User();
+        user.setUsername(username);
+        user.setPassword(passwordEncoder.encode(request.password()));
+        user.setRoles(roles);
         User savedUser = userRepository.save(user);
         return new UserResponseDto(savedUser.getId(), savedUser.getUsername(), savedUser.getRoles());
     }
