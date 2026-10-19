@@ -24,7 +24,17 @@ Start the API in another terminal:
 
 The API listens on `http://localhost:8080/order-management-service`. The default database is `ordermanagementservice`; MongoDB creates the database and `orders` collection when the first order is saved.
 
-The order API uses HTTP Basic authentication. Spring Boot logs a generated password for the default user `user` when the app starts. Use that password for requests to `/orders`; the health endpoint and OpenAPI docs remain public.
+The order API uses HTTP Basic authentication backed by users in MongoDB. On startup, the app can create an initial `ADMIN` user when `APP_SECURITY_ADMIN_USERNAME` and `APP_SECURITY_ADMIN_PASSWORD` are set. Its password is stored as a BCrypt hash. `ADMIN` can read, create, and delete orders; `USER` can read orders. The health endpoint and OpenAPI docs remain public.
+
+Set the initial admin credentials in PowerShell before starting the app:
+
+```powershell
+$env:APP_SECURITY_ADMIN_USERNAME = 'admin'
+$env:APP_SECURITY_ADMIN_PASSWORD = 'choose-a-local-password'
+.\mvnw.cmd spring-boot:run
+```
+
+The bootstrap only inserts the admin if that username does not already exist. Keep these environment variables private. The user documents are stored in the `users` collection.
 
 To use another MongoDB deployment, set `MONGODB_URI` before starting the app. For example:
 
@@ -50,14 +60,14 @@ Invoke-RestMethod -Method Post `
   -Uri 'http://localhost:8080/order-management-service/orders' `
   -ContentType 'application/json' `
   -Authentication Basic `
-  -Credential (Get-Credential -UserName 'user' -Message 'Enter the generated Spring Security password') `
+  -Credential (Get-Credential -UserName 'admin' -Message 'Enter the admin password') `
   -Body '{"customerName":"Ada Lovelace","bookId":101,"orderStatus":"NEW"}'
 ```
 
 Use the returned `orderId` in these requests:
 
 ```powershell
-$credential = Get-Credential -UserName 'user' -Message 'Enter the generated Spring Security password'
+$credential = Get-Credential -UserName 'admin' -Message 'Enter the admin password'
 Invoke-RestMethod -Uri 'http://localhost:8080/order-management-service/orders' -Authentication Basic -Credential $credential
 Invoke-RestMethod -Uri 'http://localhost:8080/order-management-service/orders/{orderId}' -Authentication Basic -Credential $credential
 Invoke-WebRequest -Method Delete -Uri 'http://localhost:8080/order-management-service/orders/{orderId}' -Authentication Basic -Credential $credential
