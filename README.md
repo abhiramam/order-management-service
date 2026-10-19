@@ -24,6 +24,8 @@ Start the API in another terminal:
 
 The API listens on `http://localhost:8080/order-management-service`. The default database is `ordermanagementservice`; MongoDB creates the database and `orders` collection when the first order is saved.
 
+The order API uses HTTP Basic authentication. Spring Boot logs a generated password for the default user `user` when the app starts. Use that password for requests to `/orders`; the health endpoint and OpenAPI docs remain public.
+
 To use another MongoDB deployment, set `MONGODB_URI` before starting the app. For example:
 
 ```powershell
@@ -47,15 +49,18 @@ Create an order:
 Invoke-RestMethod -Method Post `
   -Uri 'http://localhost:8080/order-management-service/orders' `
   -ContentType 'application/json' `
+  -Authentication Basic `
+  -Credential (Get-Credential -UserName 'user' -Message 'Enter the generated Spring Security password') `
   -Body '{"customerName":"Ada Lovelace","bookId":101,"orderStatus":"NEW"}'
 ```
 
 Use the returned `orderId` in these requests:
 
 ```powershell
-Invoke-RestMethod -Uri 'http://localhost:8080/order-management-service/orders'
-Invoke-RestMethod -Uri 'http://localhost:8080/order-management-service/orders/{orderId}'
-Invoke-WebRequest -Method Delete -Uri 'http://localhost:8080/order-management-service/orders/{orderId}'
+$credential = Get-Credential -UserName 'user' -Message 'Enter the generated Spring Security password'
+Invoke-RestMethod -Uri 'http://localhost:8080/order-management-service/orders' -Authentication Basic -Credential $credential
+Invoke-RestMethod -Uri 'http://localhost:8080/order-management-service/orders/{orderId}' -Authentication Basic -Credential $credential
+Invoke-WebRequest -Method Delete -Uri 'http://localhost:8080/order-management-service/orders/{orderId}' -Authentication Basic -Credential $credential
 ```
 
 Replace `{orderId}` with the ID returned by the create request. Valid statuses are `NEW`, `PROCESSING`, `COMPLETED`, and `CANCELLED`. Invalid requests return a structured `400` response; an unknown ID returns `404`.
@@ -78,7 +83,7 @@ Walk through one `POST /orders` request from top to bottom:
 6. **Persistence mapping** — `@Document(collection = "orders")` maps `OrderInfoVo` to a MongoDB collection. Mongo is document-oriented, so the stored shape is not a relational table or JPA entity.
 7. **Exception translation** — `ApiExceptionHandler` maps missing orders and validation failures to useful HTTP responses.
 
-Useful topics to explain in an interview: dependency injection and constructor injection, the controller/service/repository separation, DTOs versus persistence documents, Bean Validation, HTTP status codes, Spring Data repository generation, MongoDB documents and IDs, externalized configuration, Actuator health, and why production APIs need an explicit authentication/authorization design. This local learning app does not configure production security.
+Useful topics to explain in an interview: dependency injection and constructor injection, the controller/service/repository separation, DTOs versus persistence documents, Bean Validation, HTTP status codes, Spring Data repository generation, MongoDB documents and IDs, externalized configuration, Actuator health, and why production APIs need an explicit authentication/authorization design. The Basic authentication here is for learning; it is not a production authentication design.
 
 ## Configuration
 
