@@ -24,17 +24,7 @@ Start the API in another terminal:
 
 The API listens on `http://localhost:8080/order-management-service`. The default database is `ordermanagementservice`; MongoDB creates the database and `orders` collection when the first order is saved.
 
-The order API uses HTTP Basic authentication backed by users in MongoDB. On startup, the app can create an initial `ADMIN` user when `APP_SECURITY_ADMIN_USERNAME` and `APP_SECURITY_ADMIN_PASSWORD` are set. Its password is stored as a BCrypt hash. `ADMIN` can read, create, and delete orders; `USER` can read orders. The health endpoint and OpenAPI docs remain public.
-
-Set the initial admin credentials in PowerShell before starting the app:
-
-```powershell
-$env:APP_SECURITY_ADMIN_USERNAME = 'admin'
-$env:APP_SECURITY_ADMIN_PASSWORD = 'choose-a-local-password'
-.\mvnw.cmd spring-boot:run
-```
-
-The bootstrap only inserts the admin if that username does not already exist. Keep these environment variables private. The user documents are stored in the `users` collection.
+The order API uses HTTP Basic authentication backed by users in MongoDB. `MongoUserDetailsService` implements Spring Security's `UserDetailsService` and loads users from the `users` collection. User documents must contain a BCrypt-encoded password and roles such as `ADMIN` or `USER`. `ADMIN` can read, create, and delete orders; `USER` can read orders. The health endpoint and OpenAPI docs remain public. This app has no user-registration endpoint; create user records through a trusted provisioning method.
 
 To use another MongoDB deployment, set `MONGODB_URI` before starting the app. For example:
 
