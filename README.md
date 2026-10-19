@@ -24,7 +24,7 @@ Start the API in another terminal:
 
 The API listens on `http://localhost:8080/order-management-service`. The default database is `ordermanagementservice`; MongoDB creates the database and `orders` collection when the first order is saved.
 
-The order API uses HTTP Basic authentication backed by users in MongoDB. `MongoUserDetailsService` implements Spring Security's `UserDetailsService` and loads users from the `users` collection. User documents must contain a BCrypt-encoded password and roles such as `ADMIN` or `USER`. `ADMIN` can read, create, and delete orders; `USER` can read orders. The health endpoint and OpenAPI docs remain public. This app has no user-registration endpoint; create user records through a trusted provisioning method.
+The API uses HTTP Basic authentication backed by users in MongoDB. `MongoUserDetailsService` implements Spring Security's `UserDetailsService` and loads users from the `users` collection. `ADMIN` can read, create, and delete orders and create users; `USER` can read orders. The health endpoint and OpenAPI docs remain public. The first `ADMIN` must be provisioned through a trusted method; after that, admins can create users through `POST /users`.
 
 To use another MongoDB deployment, set `MONGODB_URI` before starting the app. For example:
 
@@ -64,6 +64,26 @@ Invoke-WebRequest -Method Delete -Uri 'http://localhost:8080/order-management-se
 ```
 
 Replace `{orderId}` with the ID returned by the create request. Valid statuses are `NEW`, `PROCESSING`, `COMPLETED`, and `CANCELLED`. Invalid requests return a structured `400` response; an unknown ID returns `404`.
+
+Create a user (requires HTTP Basic credentials for an existing `ADMIN`):
+
+```powershell
+$adminCredential = Get-Credential -UserName 'orderadmin'
+$newUser = @{
+    username = 'orderreader'
+    password = 'ChooseAUniquePassword123!'
+    roles = @('USER')
+} | ConvertTo-Json
+
+Invoke-RestMethod -Method Post `
+  -Uri 'http://localhost:8080/order-management-service/users' `
+  -Authentication Basic `
+  -Credential $adminCredential `
+  -ContentType 'application/json' `
+  -Body $newUser
+```
+
+The API hashes the supplied password with BCrypt before storing it and never returns the hash. Valid roles are `USER` and `ADMIN`. Do not send credentials over plain HTTP outside local development.
 
 OpenAPI UI: `http://localhost:8080/order-management-service/swagger-ui/index.html`
 

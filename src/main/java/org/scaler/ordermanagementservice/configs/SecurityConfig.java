@@ -29,6 +29,8 @@ public class SecurityConfig {
                         .hasRole("ADMIN")
                         .requestMatchers(HttpMethod.DELETE, "/orders/**")
                         .hasRole("ADMIN")
+                        .requestMatchers(HttpMethod.POST, "/users")
+                        .hasRole("ADMIN")
                         .anyRequest().authenticated())
                 .httpBasic(Customizer.withDefaults())
                 .build();
